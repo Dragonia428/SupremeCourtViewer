@@ -10,10 +10,17 @@ var data = {
     edges : edges
 };
 var options = {
+    interaction : {
+        dragNodes : true,
+        hover : true
+    },
     layout: {
         hierarchical: {
             sortMethod: 'directed',
-            direction : 'LR'
+            direction : 'LR',
+            levelSeparation : 450,
+            parentCentralization : true
+
         }
     },
     edges: {
@@ -22,30 +29,27 @@ var options = {
 };
 
 var network = new vis.Network(container, data, options);
-
-/*
-for(var i = 0; i < 5; i++){
-    getNode(100000 + i).then( (result) => {
-        //console.log(result['node']['n']);
-        nodes.add({
-            id : result['node']['n']['properties']['file'],
-            label : result['node']['n']['properties']['case_name']
-        })
-    });
-}
-*/
+network.on('click', function (params){
+    var clicked_node = params['nodes'][0];
+    var nodeTitle = nodes.get(clicked_node);
+    console.log(nodeTitle);
+    $('#case_name_span').text(nodeTitle.label);
+});
 
 getRelationships(118149).then( (result) => {
     console.log(result);
     nodes.add({
         id : result['original_case']['file'],
         label : result['original_case']['case_name'],
-        title : result['original_case']['filed']
+        title : result['original_case']['filed'],
+        level : 1
     });
     for(var i = 0; i < result['cited_cases'].length; ++i){
         nodes.add({
             id : result['cited_cases'][i]['file'],
-            label : result['cited_cases'][i]['name']
+            label : result['cited_cases'][i]['name'],
+            title : result['cited_cases'][i]['filed'],
+            level : 2
         });
         edges.add({
             from : result['cited_cases'][i]['file'],
@@ -57,7 +61,9 @@ getRelationships(118149).then( (result) => {
     for(var j = 0; j < result['cites_cases'].length; ++j){
         nodes.add({
             id: result['cites_cases'][j]['file'],
-            label: result['cites_cases'][j]['name']
+            label: result['cites_cases'][j]['name'],
+            title : result['cites_cases'][j]['filed'],
+            level : 0
         });
         edges.add({
             to : result['cites_cases'][j]['file'],
@@ -67,6 +73,7 @@ getRelationships(118149).then( (result) => {
         
     }
 });
+
 
 function getNode(fileNumber){
     return $.get('/api/node/' + fileNumber);

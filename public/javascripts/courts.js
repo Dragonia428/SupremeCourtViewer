@@ -19,6 +19,7 @@ var options = {
             sortMethod: 'directed',
             direction : 'LR',
             levelSeparation : 450,
+            nodeSpacing : 100,
             parentCentralization : true
 
         }
@@ -28,12 +29,20 @@ var options = {
     physics : false
 };
 
+var ourStory = {
+    '118149' : "In State Oil V. Khan, years of Anti-Trust litigation were overruled when Vertical Price Fixing was given a new latitude. " +
+    "Despite the young age of this case, several cases have already taken advantage of this decision"
+}
+
 var network = new vis.Network(container, data, options);
 network.on('click', function (params){
     var clicked_node = params['nodes'][0];
     var nodeTitle = nodes.get(clicked_node);
-    console.log(nodeTitle);
+    console.log(clicked_node)
     $('#case_name_span').text(nodeTitle.label);
+    if( ourStory[clicked_node]){
+        $('#case_story_span').text(ourStory[clicked_node])
+    }
 });
 
 getRelationships(118149).then( (result) => {
@@ -42,6 +51,7 @@ getRelationships(118149).then( (result) => {
         id : result['original_case']['file'],
         label : result['original_case']['case_name'],
         title : result['original_case']['filed'],
+        shape : "box",
         level : 1
     });
     for(var i = 0; i < result['cited_cases'].length; ++i){
@@ -49,12 +59,13 @@ getRelationships(118149).then( (result) => {
             id : result['cited_cases'][i]['file'],
             label : result['cited_cases'][i]['name'],
             title : result['cited_cases'][i]['filed'],
+            shape : "box",
             level : 2
         });
         edges.add({
-            from : result['cited_cases'][i]['file'],
-            to: result['original_case']['file'],
-            arrows: 'from'
+            to : result['cited_cases'][i]['file'],
+            from: result['original_case']['file'],
+            arrows: 'middle'
         })
     }
     
@@ -63,12 +74,13 @@ getRelationships(118149).then( (result) => {
             id: result['cites_cases'][j]['file'],
             label: result['cites_cases'][j]['name'],
             title : result['cites_cases'][j]['filed'],
+            shape : "box",
             level : 0
         });
         edges.add({
-            to : result['cites_cases'][j]['file'],
-            from: result['original_case']['file'],
-            arrows: 'from'
+            from : result['cites_cases'][j]['file'],
+            to: result['original_case']['file'],
+            arrows: 'middle'
         })
         
     }

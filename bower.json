@@ -1,0 +1,21 @@
+{
+  "name": "SupremeCourtViewer",
+  "description": "",
+  "main": "",
+  "authors": [
+    "Irving Derin <Irving.Derin@gmail.com>"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Windsplunts/SupremeCourtViewer",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "vis": "^4.16.1"
+  }
+}

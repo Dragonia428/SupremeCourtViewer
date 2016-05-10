@@ -45,7 +45,7 @@ router.get('/test/:id', function (req, res, next) {
  */
 router.get('/node/', function (req, res, next) {
    db.cypher({
-       query : "MATCH (n) RETURN count(n)",
+       query : "MATCH (n: Cluster ) RETURN count(n)",
        params : {}
    }, (err, data) => {
        if(err) throw err;
@@ -60,7 +60,7 @@ router.get('/node/', function (req, res, next) {
  */
 router.get('/node/:file', function (req, res, next) {
     db.cypher({
-        query : "MATCH (n {file : {file}} ) RETURN n",
+        query : "MATCH (n: Cluster  {file : {file}} ) RETURN n",
         params : {
             file : req.params['file']
         }
@@ -77,20 +77,20 @@ router.get('/node/:file', function (req, res, next) {
 router.get('/relationships/:file', function (req, res, next) {
     db.cypher({
         queries: [{
-            query : "MATCH (n {file : {file}} ) RETURN n",
+            query : "MATCH (n: Cluster {file : {file}} ) RETURN n",
             lean : true,
             params : {
                 file : req.params['file']
             }
         },
             {
-            query : "MATCH (n {file : {file}} ) - [:CITES] -> (m) RETURN m.file as file, m.case_name as name, m.date_filed as filed",
+            query : "MATCH (n: Cluster  {file : {file}} ) - [:CITES] -> (m: Cluster ) RETURN m.file as file, m.case_name as name, m.date_filed as filed",
             lean : true,
             params : {
                 file : req.params['file']
             }
         },{
-            query : "MATCH (n) - [:CITES] -> (m {file : {file}}) RETURN n.file as file, n.case_name as name, n.date_filed as filed",
+            query : "MATCH (n: Cluster ) - [:CITES] -> (m: Cluster  {file : {file}}) RETURN n.file as file, n.case_name as name, n.date_filed as filed",
             lean : true,
             params : {
                 file : req.params['file']
@@ -99,10 +99,31 @@ router.get('/relationships/:file', function (req, res, next) {
 
     }, (err, data) => {
         if(err) throw err;
+        // Queries that are in an array return as an array. Same positions
         res.json({
-            cited_cases : data[0],
-            cites_cases : data[1]
+            original_case : data[0][0]['n'],
+            cited_cases : data[1],
+            cites_cases : data[2]
         });
+    })
+});
+
+/**
+ * @description: API for getting cool functions and queries
+ */
+router.get('/firstDegree/:file', function (req, res, next) {
+    db.cypher({
+        query : "MATCH (citing:Cluster {file : {file}})-[:CITES]->(node)-[:CITES]->(cited:Cluster) " +
+        "WITH  DISTINCT cited,node " +
+        "MATCH (cited)-[:CITES]-(firstDegree) " +
+        "RETURN count(firstDegree),cited.file, node.file",
+        params : {
+            file : req.params['file']
+        }
+    }, (err, data) => {
+        if(err) throw err;
+        var node = data;
+        res.json({node : node});
     })
 });
 

@@ -50,12 +50,60 @@ router.get('/node/', function (req, res, next) {
    }, (err, data) => {
        if(err) throw err;
        var count = data[0]['count(n)'];
-       res.end(count.toString());
+       res.json({count : count});
    }) 
 });
 
 /**
  * @description: Returns back specific node. Indexed by 'file'
+ *
  */
+router.get('/node/:file', function (req, res, next) {
+    db.cypher({
+        query : "MATCH (n {file : {file}} ) RETURN n",
+        params : {
+            file : req.params['file']
+        }
+    }, (err, data) => {
+        if(err) throw err;
+        var node = data[0];
+        res.json({node : node});
+    })
+});
+
+/**
+ * @description: Return relationships of a specific node. Get inbound and outbound
+ */
+router.get('/relationships/:file', function (req, res, next) {
+    db.cypher({
+        queries: [{
+            query : "MATCH (n {file : {file}} ) RETURN n",
+            lean : true,
+            params : {
+                file : req.params['file']
+            }
+        },
+            {
+            query : "MATCH (n {file : {file}} ) - [:CITES] -> (m) RETURN m.file as file, m.case_name as name, m.date_filed as filed",
+            lean : true,
+            params : {
+                file : req.params['file']
+            }
+        },{
+            query : "MATCH (n) - [:CITES] -> (m {file : {file}}) RETURN n.file as file, n.case_name as name, n.date_filed as filed",
+            lean : true,
+            params : {
+                file : req.params['file']
+            }
+        }]
+
+    }, (err, data) => {
+        if(err) throw err;
+        res.json({
+            cited_cases : data[0],
+            cites_cases : data[1]
+        });
+    })
+});
 
 module.exports = router;

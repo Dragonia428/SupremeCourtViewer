@@ -133,16 +133,32 @@ router.get('/firstDegree/:file', function (req, res, next) {
  * @description: Get conservative and liberal decsision
  */
 router.get('/decision/:direction', function (req, res, next) {
-    db.cypher({
-        query : "MATCH (n:Cluster {scdb_decision_direction : {direction}})" +
-        "RETURN n.case_name as case_name, n.file as file_number",
-        params : {
-            direction : req.params['direction']
-        }
-    }, (err, data) => {
-        if (err) throw err;
-        res.json({decisions : data, direction : req.params['direction']})
-    })
+    // Allow for null case
+    if(req.params['direction'] === '0'){
+        db.cypher({
+            query : "MATCH (n:Cluster) " +
+            "WHERE n.scdb_decision_direction IS NULL " + 
+            "RETURN n.case_name as case_name, n.file as file_number",
+            params : {
+                direction : req.params['direction']
+            }
+        }, (err, data) => {
+            if (err) throw err;
+            res.json({decisions : data, direction : req.params['direction']})
+        })
+    }
+    else {
+        db.cypher({
+            query : "MATCH (n:Cluster {scdb_decision_direction : {direction}})" +
+            "RETURN n.case_name as case_name, n.file as file_number",
+            params : {
+                direction : req.params['direction']
+            }
+        }, (err, data) => {
+            if (err) throw err;
+            res.json({decisions : data, direction : req.params['direction']})
+        })
+    }
 });
 
 module.exports = router;

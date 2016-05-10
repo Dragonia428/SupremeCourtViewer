@@ -104,8 +104,8 @@ router.get('/relationships/:file', function (req, res, next) {
         // Queries that are in an array return as an array. Same positions
         res.json({
             original_case : data[0][0]['n'],
-            cited_cases : data[1],
-            cites_cases : data[2]
+            cites_cases : data[1],
+            cited_cases : data[2]
         });
     })
 });

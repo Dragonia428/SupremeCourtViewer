@@ -6,3 +6,7 @@ body {
 a {
   color: #00B7FF;
 }
+
+#networkGraphColumn {
+  border: #0f0f0f;
+}

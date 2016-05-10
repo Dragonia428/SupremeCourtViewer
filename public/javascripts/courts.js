@@ -12,12 +12,20 @@ var data = {
 var options = {interaction : {hover:true}};
 var network = new vis.Network(container, data, options);
 
-$.get('/api/node/100000', function (data){
-    console.log(data['node']['n']);
-    var node = data['node']['n'];
-    nodes.add({
-        id: node.properties['file'],
-        label: node.properties['case_name']
+for(var i = 0; i < 5; i++){
+    getNode(100000 + i).then( (result) => {
+        console.log(result['node']['n']);
+        nodes.add({
+            id : result['node']['n']['properties']['file'],
+            label : result['node']['n']['properties']['case_name']
+        })
     });
-    console.log(nodes);
-});
+}
+
+function getNode(fileNumber){
+    return $.get('/api/node/' + fileNumber);
+}
+
+function getRelationships(fileNumber){
+    return $.get('/api/node/' + fileNumber)
+}

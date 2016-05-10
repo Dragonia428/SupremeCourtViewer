@@ -84,13 +84,15 @@ router.get('/relationships/:file', function (req, res, next) {
             }
         },
             {
-            query : "MATCH (n: Cluster  {file : {file}} ) - [:CITES] -> (m: Cluster ) RETURN m.file as file, m.case_name as name, m.date_filed as filed",
+            query : "MATCH (n: Cluster  {file : {file}} ) - [:CITES] -> (m: Cluster ) " +
+            "RETURN m.file as file, m.case_name as name, m.date_filed as filed",
             lean : true,
             params : {
                 file : req.params['file']
             }
         },{
-            query : "MATCH (n: Cluster ) - [:CITES] -> (m: Cluster  {file : {file}}) RETURN n.file as file, n.case_name as name, n.date_filed as filed",
+            query : "MATCH (n: Cluster ) - [:CITES] -> (m: Cluster  {file : {file}}) " +
+            "RETURN n.file as file, n.case_name as name, n.date_filed as filed",
             lean : true,
             params : {
                 file : req.params['file']

@@ -149,7 +149,7 @@ router.get('/decision/:direction', function (req, res, next) {
     }
     else {
         db.cypher({
-            query : "MATCH (n:Cluster {scdb_decision_direction : {direction}})" +
+            query : "MATCH (n:Cluster {scdb_decision_direction : {direction = 1}})" +
             "RETURN n.case_name as case_name, n.file as file_number",
             params : {
                 direction : req.params['direction']
